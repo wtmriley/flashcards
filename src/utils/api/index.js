@@ -2,7 +2,7 @@
  * Defines the base URL for the API.
  * The default values is overridden by the `API_BASE_URL` environment variable.
  */
-const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:5000";
+const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:8080";
 
 /**
  * Defines the default headers for these functions to work with `json-server`
@@ -20,7 +20,7 @@ headers.append("Content-Type", "application/json");
  * @returns {*}
  *  a copy of the deck instance with the `cards` property removed.
  */
-function stripCards(deck) {
+export default function stripCards(deck) {
   const { cards, ...deckWithoutCards } = deck;
   return deckWithoutCards;
 }
@@ -69,10 +69,23 @@ async function fetchJson(url, options, onCancel) {
  * @returns {Promise<[deck]>}
  *  a promise that resolves to a possibly empty array of decks saved in the database.
  */
+
 export async function listDecks(signal) {
   const url = `${API_BASE_URL}/decks?_embed=cards`;
   return await fetchJson(url, { signal }, []);
+  
 }
+export async function createDeck(newDeck, signal) {
+  const url = `${API_BASE_URL}/decks`;
+  const options = {
+    method: "POST",
+    headers,
+    body: JSON.stringify(newDeck),
+    signal,
+  };
+  return await fetchJson(url, options, newDeck);
+}
+
 
 /**
  * Saves deck to the database (public/data/db.json).
@@ -94,10 +107,22 @@ export async function listDecks(signal) {
  * @returns {Promise<any>}
  *  a promise that resolves to the saved deck.
  */
+
 export async function readDeck(deckId, signal) {
   const url = `${API_BASE_URL}/decks/${deckId}?_embed=cards`;
   console.log("Fetching deck from:", url);
-  return await fetchJson(url, { signal }, {});
+  const deckData = await fetchJson(url, { signal }, {});
+  console.log("Deck Data:", deckData);
+  
+  // Normalize the deckId in cards to be a string (if it's a number or string mix)
+  deckData.cards = deckData.cards.map(card => ({
+    ...card,
+    deckId: String(card.deckId) // Convert deckId to string
+  }));
+
+  console.log("Normalized Deck Data:", deckData);
+  
+  return deckData;
 }
 
 /**
@@ -109,15 +134,18 @@ export async function readDeck(deckId, signal) {
  * @returns {Promise<Error|*>}
  *  a promise that resolves to the updated deck.
  */
+
 export async function updateDeck(updatedDeck, signal) {
   const url = `${API_BASE_URL}/decks/${updatedDeck.id}?_embed=cards`;
+
   const options = {
     method: "PUT",
     headers,
     body: JSON.stringify(stripCards(updatedDeck)),
-    signal,
+    signal: signal,
   };
-  return await fetchJson(url, options, updatedDeck);
+
+  return await fetchJson(url, options);  // Pass null for onCancel
 }
 
 /**
@@ -129,6 +157,7 @@ export async function updateDeck(updatedDeck, signal) {
  * @returns {Promise<Error|*>}
  *  a promise that resolves to an empty object.
  */
+
 export async function deleteDeck(deckId, signal) {
   const url = `${API_BASE_URL}/decks/${deckId}`;
   const options = { method: "DELETE", signal };
@@ -158,6 +187,7 @@ export async function deleteDeck(deckId, signal) {
  * @returns {Promise<Error|*>}
  *  a promise that resolves to the saved card.
  */
+
 export async function readCard(cardId, signal) {
   const url = `${API_BASE_URL}/cards/${cardId}`;
   return await fetchJson(url, { signal }, {});
@@ -167,6 +197,7 @@ export async function listCards(signal) {
   const url = `${API_BASE_URL}/cards`;
   return await fetchJson(url, { signal }, []);
 }
+
 /**
  * Updates an existing deck
  * @param updatedCard
@@ -176,12 +207,14 @@ export async function listCards(signal) {
  * @returns {Promise<Error|*>}
  *  a promise that resolves to the updated card.
  */
-export async function updateCard(updatedCard, signal) {
+
+export async function updateCard(updatedCard, signal ) {
   const url = `${API_BASE_URL}/cards/${updatedCard.id}`;
   const options = {
     method: "PUT",
     headers,
     body: JSON.stringify(updatedCard),
+    signal,
   };
   return await fetchJson(url, options, updatedCard);
 }
@@ -195,8 +228,20 @@ export async function updateCard(updatedCard, signal) {
  * @returns {Promise<Error|*>}
  *  a promise that resolves to an empty object.
  */
+
 export async function deleteCard(cardId, signal) {
   const url = `${API_BASE_URL}/cards/${cardId}`;
   const options = { method: "DELETE", signal };
   return await fetchJson(url, options);
+}
+
+export async function createCard(newCard, signal) {
+  const url = `${API_BASE_URL}/cards`;
+  const options = {
+    method: "POST",
+    headers,
+    body: JSON.stringify(newCard),
+    signal,
+  };
+  return await fetchJson(url, options, newCard);
 }

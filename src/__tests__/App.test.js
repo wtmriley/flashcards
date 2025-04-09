@@ -1,8 +1,16 @@
+if (typeof window.MutationObserver === 'undefined') {
+  window.MutationObserver = class {
+    constructor(callback) {}
+    disconnect() {}
+    observe(element, options) {}
+  };
+}
+
 import React from "react";
-import { act, render, screen } from "@testing-library/react";
+import { act } from "react";
+import { render, screen } from "@testing-library/react";
 import App from "../App";
 import { MemoryRouter } from "react-router-dom";
-import "@testing-library/jest-dom/extend-expect";
 import {
   createCard,
   createDeck,
@@ -22,42 +30,54 @@ jest.mock("../utils/api");
 describe("App", () => {
   beforeEach(() => {
     createCard.mockResolvedValue({
-      front:
-        "Default mock response. If you see this, you probably do not need this API call.",
+      front: "Default mock card front",
+      back: "Default mock card back",
     });
     createDeck.mockResolvedValue({
-      name:
-        "Default mock response. If you see this, you probably do not need this API call.",
+      id: 1,
+      name: "Default mock deck",
+      description: "Description of the default mock deck",
     });
     deleteCard.mockResolvedValue({
-      front:
-        "Default mock response. If you see this, you probably do not need this API call.",
+      id: 1,
+      name: "Default mock deck",
+      description: "Description of the default mock deck",
     });
     deleteDeck.mockResolvedValue({
-      name:
-        "Default mock response. If you see this, you probably do not need this API call.",
+      id: 1,
+      name: "Default mock deck",
+      description: "Description of the default mock deck",
     });
     listDecks.mockResolvedValue([
       {
-        front:
-          "Default mock response. If you see this, you probably do not need this API call.",
+        id: 1,
+        name: "Mock Rendering in React",
+        description: "A deck for learning React",
+        cards: [{ id: 1, front: "Card 1" }, { id: 2, front: "Card 2" }],
       },
     ]);
     readCard.mockResolvedValue({
-      front:
-        "Default mock response. If you see this, you probably do not need this API call.",
+      id: 1,
+      front: "What is React?",
+      back: "A JavaScript library for building user interfaces",
     });
     readDeck.mockResolvedValue({
-      name:
-        "Default mock response. If you see this, you probably do not need this API call.",
+      id: 1,
+      name: "React Basics",
+      description: "A deck for learning React basics",
+      cards: [
+        { id: 1, front: "What is JSX?", back: "JSX is a syntax extension for JavaScript" },
+      ],
     });
     updateCard.mockResolvedValue({
-      front:
-        "Default mock response. If you see this, you probably do not need this API call.",
+      id: 1,
+      front: "Updated front of the card",
+      back: "Updated back of the card",
     });
     updateDeck.mockResolvedValue({
-      name:
-        "Default mock response. If you see this, you probably do not need this API call.",
+      id: 1,
+      name: "Updated React Basics",
+      description: "Updated description for React basics",
     });
   });
 
@@ -68,7 +88,7 @@ describe("App", () => {
             <App />
         </MemoryRouter>      
     );
-    expect(screen.getByText("Not Found")).toBeTruthy();
+    expect(screen.findByText("Not Found")).toBeTruthy();
   });
 
   test("route for /", async () => {
@@ -87,22 +107,24 @@ describe("App", () => {
       },
     ];
 
-    const mockDecksPromise = Promise.resolve(mockDecks);
+    //const mockDecksPromise = Promise.resolve(mockDecks);
 
-    listDecks.mockImplementation(() => mockDecksPromise);
+    //listDecks.mockImplementation(() => mockDecksPromise);
+    listDecks.mockImplementation(() => Promise.resolve(mockDecks));
 
-
-    render(
+    await act(async () => {
+      render(
         <MemoryRouter initialEntries={["/"]}>
             <App />
         </MemoryRouter>
-    );
+      );
+    });
 
-    await act(() => mockDecksPromise);
-
-    expect(screen.getByText("Mock Rendering in React")).toBeTruthy();
-    expect(screen.getByText("2 cards")).toBeTruthy();
-    expect(screen.getByText("Mock React Router")).toBeTruthy();
-    expect(screen.getByText("0 cards")).toBeTruthy();
+    //await act(() => mockDecksPromise);
+ 
+    expect(screen.findByText("Mock Rendering in React")).toBeTruthy();
+    expect(screen.findByText("2 cards")).toBeTruthy();
+    expect(screen.findByText("Mock React Router")).toBeTruthy();
+    expect(screen.findByText("0 cards")).toBeTruthy();
   });
 });

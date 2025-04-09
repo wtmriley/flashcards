@@ -1,82 +1,47 @@
-import React, { useState, useEffect, useParams } from 'react';
-import { listCards } from '../api/index.js';
 import { useNavigate } from "react-router-dom";
-import EditCard from './editCard';
+import CardItem from "./cardItem";
+import React from 'react';
 
-export const Card = ({ deckId, deckName, deckDescription }) => {
-    const [cards, setCards] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const { cardId } = useParams();
 
+
+export const Card = ({ deckId, deckName, deckDescription, cards, setCards, refreshCards }) => {
     const navigate = useNavigate();
+    console.log("Cards received in Card component:", cards);
 
-    useEffect(() => {
-        console.log("deckId received in Card component:", deckId); // ✅ Debugging deckId
-        if (!deckId) return;
+    const filteredCards = cards.filter(card => card.deckId == deckId);
 
-        const abortController = new AbortController();
-        const signal = abortController.signal;
+    console.log("Filtered Cards:", filteredCards);
 
-        async function fetchCards() {
-            try {
-                // Fetch all cards
-                const allCards = await listCards(signal);
-                console.log("Fetched Cards:", allCards);
-                // Filter only the cards belonging to this deck
-                const deckCards = allCards.filter(card => card.deckId === parseInt(deckId, 10));
-                console.log("Filtered Deck Cards:", deckCards);
-
-                setCards(deckCards);
-                setLoading(false);
-            } catch (err) {
-                if (err.name !== "AbortError") {
-                    setError(err);
-                    setLoading(false);
-                }
-            }
-        }
-
-        fetchCards();
-
-        return () => abortController.abort();
-    }, [deckId]);
-
-    if (loading) return <div>Loading cards...</div>;
-    if (error) return <div>Error: {error.message}</div>;
+    const handleCardDelete = (deletedCardId) => {
+      setCards(prevCards => prevCards.filter(card => card.id !== deletedCardId));
+    };
 
     return (
-        <div>
-            <h2>{deckName}</h2>
-            <p>{deckDescription}</p>
-            <button className="btn btn-primary" onClick={() => navigate(`/decks/${deckId}/edit`)}>Edit</button>
-            <button className="btn btn-primary" onClick={() => navigate(`/decks/${deckId}/study`)}>Study</button>
-            <button className="btn btn-primary" onClick={() => navigate(`/decks/${deckId}/cards/new`)}>Add Cards</button>
-            <ul>
-                {cards.map((card) => (
-                    <li key={card.id} className="card">
-                        <div className="card-front">
-                            <h3>{card.front}</h3>
-                        </div>
-                        <div className="card-back">
-                            <p>{card.back}</p>
-                        </div>
-                        <div className="card-actions">
-                            <button className="btn btn-primary" onClick={() => navigate(`/decks/${deckId}/cards/${card.id}/edit`)}>Edit</button>
-                            <button className="btn btn-danger">Delete</button>
-                        </div>
-                        <EditCard 
-                            deckName={deckName}
-                            deckDescription={deckDescription}
-                            cardId={card.id}
-                            cardFront={card.front}
-                            cardBack={card.back}
-                            deckId={deckId}
-                        />
-                    </li>
-                ))}
-            </ul>
-        </div>
+    <div>
+      <h2>{deckName}</h2>
+      <p>{deckDescription}</p>
+
+      <button className="btn btn-primary" onClick={() => navigate(`/decks/${deckId}/edit`)}>Edit Deck</button>
+      <button className="btn btn-danger" onClick={() => navigate(`/decks/${deckId}/delete`)}>Delete Deck</button>
+      <button className="btn btn-primary" onClick={() => navigate(`/decks/${deckId}/cards/new`)}>Add Card</button>
+      <button className="btn btn-primary" onClick={() => navigate(`/decks/${deckId}/study`, { state: { cards } })}>Study</button>
+      
+      <ul>
+        {filteredCards && filteredCards.length > 0 ? (
+          filteredCards.map((card) => (
+            <CardItem
+              key={card.id}
+              card={card}
+              deckId={deckId}
+              onCardDelete={handleCardDelete}
+              refreshCards={refreshCards}
+            />
+          ))
+        ) : (
+            console.log("Not enough cards")
+        )}
+      </ul>
+    </div>
     );
 };
 
