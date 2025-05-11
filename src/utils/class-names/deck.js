@@ -19,8 +19,7 @@ export const Deck = () => {
 
   const removeCardFromList = (cardId) => {
     setCards((prevCards) => prevCards.filter(card => card.id !== cardId));
-  
-    // Trigger a full re-fetch to ensure state updates
+
     fetchDeckAndCards();
   };
 
@@ -47,6 +46,11 @@ export const Deck = () => {
 
       setDeck({ ...fetchedDeck, cards: deckCards });
       setCards(deckCards);
+
+      console.log("Fetched deck:", fetchedDeck.name);
+      console.log("Cards array length:", deckCards.length);
+      console.log("Cards:", deckCards);
+
     } catch (err) {
       console.error("Error fetching deck:", err);
       navigate("*");
@@ -61,9 +65,14 @@ export const Deck = () => {
   useEffect(() => {
     console.log("Location state on mount:", location.state);
     if (!deck || location.state?.refresh) {
-        fetchDeckAndCards();
+      fetchDeckAndCards().then(() => {
+        // Clear refresh state after fetching data
+        if (location.state?.refresh) {
+          navigate(`/decks/${deckId}`, { replace: true, state: {} });
+        }
+      });
     }
-}, [deckId, location.state?.refresh]);  // Triggers re-fetch when refresh is true
+  }, [deckId, location.state?.refresh]);  
 
   if (!deck) console.log("No deck found.");
 
@@ -71,11 +80,11 @@ export const Deck = () => {
     return <p>Loading...</p>;
   }
 
-
   return (
     <div>
       <Card
         deckId={deck.id}
+        deck={deck}
         deckName={deck.name}
         deckDescription={deck.description}
         cards={deck.cards || [] }

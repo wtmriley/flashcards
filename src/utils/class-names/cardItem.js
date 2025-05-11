@@ -2,14 +2,17 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { deleteCard } from "../api/index.js";
 
-const CardItem = ({ card, deckId, refreshCards }) => {
+const CardItem = ({ card, deckId, refreshCards, deck, deckName }) => {
 
-  console.log("Card ID:", card.id); // ✅ now this will work
+  console.log("Card ID:", card.id);
   console.log("Deck ID:", deckId);
 
   const navigate = useNavigate();
 
   console.log(card.id);
+  console.log("card:", card);     
+  console.log("deckName:", deckName);
+  
 
   const handleDelete = async () => {
     try {
@@ -22,9 +25,13 @@ const CardItem = ({ card, deckId, refreshCards }) => {
 
   const handleEdit = () => {
     navigate(`/decks/${deckId}/cards/${card.id}/edit`, {
-      state: { front: card.front, back: card.back }
+      state: { deckName: deck.name }
     });
   };
+
+  console.log("card:", card);      
+  console.log("deckName:", deckName);
+  
 
   return (
     <li className="card">

@@ -114,11 +114,13 @@ export async function readDeck(deckId, signal) {
   const deckData = await fetchJson(url, { signal }, {});
   console.log("Deck Data:", deckData);
   
-  // Normalize the deckId in cards to be a string (if it's a number or string mix)
-  deckData.cards = deckData.cards.map(card => ({
-    ...card,
-    deckId: String(card.deckId) // Convert deckId to string
-  }));
+  // safety check to prevent crash
+  deckData.cards = Array.isArray(deckData.cards)
+    ? deckData.cards.map(card => ({
+        ...card,
+        deckId: String(card.deckId)
+      }))
+    : [];
 
   console.log("Normalized Deck Data:", deckData);
   

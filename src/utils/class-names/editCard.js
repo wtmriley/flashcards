@@ -1,12 +1,15 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useParams, Link, useLocation } from "react-router-dom";
 import { updateCard, readCard } from "../api/index.js";
 import '../../App.css';
 
 export const EditCard = () => {
     const navigate = useNavigate();
     const { cardId, deckId } = useParams();
+
+    const location = useLocation();
+    const { deckName } = location.state || {}; 
 
     const [updatedFront, setUpdatedFront] = useState("");
     const [updatedBack, setUpdatedBack] = useState("");
@@ -18,7 +21,7 @@ export const EditCard = () => {
         const fetchCard = async () => {
             setLoading(true);
             try {
-                const card = await readCard(cardId);  // 🔹 Fetch card from API
+                const card = await readCard(cardId);  // Fetch card from API
                 if (card) {
                     setUpdatedFront(card.front);  // Set form inputs
                     setUpdatedBack(card.back);
@@ -55,8 +58,8 @@ export const EditCard = () => {
             alert("Card updated successfully!");
 
             navigate(`/decks/${deckId}`, { 
-                state: { deck: { id: deckId }, refresh: true } 
-            }); // Navigate to deck page after updating
+                state: { refresh: true } 
+            }); 
 
         } catch (error) {
             setError(error);
@@ -70,6 +73,10 @@ export const EditCard = () => {
     
     return (
         <div>
+            <nav>
+                <Link to="/">Home</Link> / <Link to={`/decks/${deckId}`}>{deckName}</Link> / Edit Card
+            </nav>
+            &nbsp;
             <h2>Edit Card</h2>
             <form onSubmit={handleSubmit}>
                 <div>

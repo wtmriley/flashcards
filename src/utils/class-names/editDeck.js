@@ -1,12 +1,15 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link, useLocation } from "react-router-dom";
 import { updateDeck, readDeck } from "../api/index.js";
 import '../../App.css';
 
 export const EditDeck = () => {
     const navigate = useNavigate();
     const { deckId } = useParams();
+
+    const location = useLocation();
+    const { deckName } = location.state || {};
 
     const [updatedName, setUpdatedName] = useState("");
     const [updatedDescription, setUpdatedDescription] = useState("");
@@ -66,7 +69,10 @@ export const EditDeck = () => {
 
     return (
         <div>
-            
+            <nav>
+                <Link to="/">Home</Link> / <Link to={`/decks/${deckId}`}>{deckName}</Link> / Edit Card
+            </nav>
+            &nbsp; 
             <h2>Edit Deck</h2>
             <form onSubmit={handleSubmit}>
                 <div>

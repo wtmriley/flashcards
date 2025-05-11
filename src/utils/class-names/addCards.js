@@ -1,12 +1,11 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { updateCard, createCard, readDeck } from "../api/index.js";
 
-const AddCards = () => {
+const AddCards = ({ deckName }) => {
     const navigate = useNavigate();
-    const { cardId, deckId } = useParams();
-    const isNew = !cardId;
+    const { deckId } = useParams();
 
     const [updatedFront, setUpdatedFront] = useState("");
     const [updatedBack, setUpdatedBack] = useState("");
@@ -22,31 +21,17 @@ const AddCards = () => {
         const loadDeck = async () => {
             try {
                 const deckData = await readDeck(deckId, abortController.signal);
-                setDeck(deckData);
-
-                if (!isNew) {
-                    const foundCard = deckData.cards.find(card => String(card.id) === String(cardId));
-                    if (foundCard) {
-                        setUpdatedFront(foundCard.front);
-                        setUpdatedBack(foundCard.back);
-                    } else {
-                        setError("Card not found.");
-                    }
-                }
-
+                setDeck(deckData);  // Set deck data for navigation
             } catch (err) {
-                if (err.name !== "AbortError") {
-                    setError("Failed to load deck.");
-                }
+                setError("Failed to load deck data.");
             }
+            
         };
     
         loadDeck();
         return () => abortController.abort();
-    }, [deckId, cardId, isNew]);
+    }, [deckId]);
     
-
-    console.log("Card ID:", cardId);
     console.log("Deck ID:", deckId);
 
     // Handle form submission
@@ -62,12 +47,8 @@ const AddCards = () => {
         };
 
         try {
-            if (isNew) {
-                await createCard(cardData);
-            } else {
-                await updateCard({ ...cardData, id: cardId });
-            }
-            navigate(`/decks/${deckId}`);
+            await createCard(cardData);
+            navigate(`/decks/${deckId}`, { state: { refresh: true } });
         } catch (err) {
             setError("Failed to save card.");
         } finally {
@@ -77,6 +58,11 @@ const AddCards = () => {
 
     return (
         <div>
+            <nav>
+                <Link to="/">Home</Link> / <Link to={`/decks/${deckId}`}>{deck?.name}</Link> / Add Card
+            </nav>
+            &nbsp;
+
             <h1>{deck?.name}: Add Card</h1>
             {error && <p style={{ color: "red" }}>{error}</p>}
             <form onSubmit={handleSubmit}>
