@@ -2,6 +2,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { listDecks, listCards, deleteDeck } from "../api/index.js";
 import React from "react";
+import "../class-names-css/deckList.css";
+
 
 export const DeckList = () => {
   const [decks, setDecks] = useState([]);
@@ -62,14 +64,18 @@ export const DeckList = () => {
 
   return (
     <div className="container">
-      <h1>Mock Rendering in React</h1>
-      <button className="btn btn-primary" onClick={() => navigate("/decks/new")}>
-        Create Deck
-      </button>
-
-      <ul>
+      <div className="titletitle">
+        <h1 className="titlee">Mock Rendering in React</h1>
+        <div className="button">
+          <button className="btn btn-primary" onClick={() => navigate("/decks/new")}>
+            Create Deck
+          </button>
+        </div>
+      </div>
+      
+      <ul >
         {decks.map((deck) => (
-          <li key={deck.id}>
+          <li key={deck.id} className="deck-item">
             <h2>{deck.name}</h2>
             <p>{deck.cards.length} cards</p>
             <p>{deck.description}</p>

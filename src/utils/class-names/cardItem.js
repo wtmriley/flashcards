@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { deleteCard } from "../api/index.js";
+import "../class-names-css/cardItem.css";
 
 const CardItem = ({ card, deckId, refreshCards, deck, deckName }) => {
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { readDeck } from "../api/index.js";
+import "../class-names-css/study.css";
 
 export const Study = () => {
   const { deckId } = useParams();
@@ -44,8 +45,12 @@ export const Study = () => {
         <nav>
           <a href="/">Home</a> / <span>{deck.name}</span> / Study
         </nav>
-        <h2>{`Study: ${deck.name}`}</h2>
-        <p>Not enough cards.</p>
+        
+        <div className="studyheader">
+          <h2>{`Study: ${deck.name}`}</h2>
+          <p>Not enough cards.</p>
+        </div>
+
         <button onClick={() => navigate(`/decks/${deckId}/cards/new`)} className="btn btn-primary">
           Add Cards
         </button>
@@ -82,8 +87,12 @@ export const Study = () => {
         <nav>
           <a href="/">Home</a> / <span>{deck.name}</span> / Study
         </nav>
-        <h2>{`Study: ${deck.name}`}</h2>
-        <p>Deck Complete! You've gone through all the cards.</p>
+
+        <div className="studyheader">
+          <h2>{`Study: ${deck.name}`}</h2>
+          <p>Deck Complete! You've gone through all the cards.</p>
+        </div>
+
         <button onClick={handleRestart} className="btn btn-primary">
           Restart Deck
         </button>
@@ -100,10 +109,11 @@ export const Study = () => {
       <nav>
         <a href="/">Home</a> / <span>{deck.name}</span> / Study
       </nav>
-
-      <h2>{`Study: ${deck.name}`}</h2>
-
-      <p>{`Card ${currentIndex + 1} of ${cards.length}`}</p>
+      <div className="studyheader">
+        <h2>{`Study: ${deck.name}`}</h2>
+        <p>{`Card ${currentIndex + 1} of ${cards.length}`}</p>
+      </div>
+      
       
       <div className="card">
         {showBack ? <p>{currentCard.back}</p> : <h3>{currentCard.front}</h3>}

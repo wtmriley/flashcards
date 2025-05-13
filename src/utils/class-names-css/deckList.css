@@ -1,0 +1,27 @@
+.titlee {
+    font-size: 2rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    margin-top: 3rem;
+}
+.titletitle {
+    margin-bottom: 3rem;
+}
+.deckList {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    border: 2px solid black;
+    text-decoration: none;
+    list-style: none;
+}
+.deck-item {
+    gap: 2rem;
+    border: 1px solid black;
+    padding: 1rem;
+    padding-left: 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    list-style: none;
+    margin: 1rem;
+}
